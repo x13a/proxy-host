@@ -1,0 +1,27 @@
+services:
+  caddy:
+    build: .
+    image: caddy:latest
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp
+    volumes:
+      - ./config/:/etc/caddy/:ro
+      - ./www/:/www/:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    container_name: caddy
+    networks:
+      - caddy
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    env_file:
+      - ./caddy.env
+
+volumes:
+  caddy_data:
+    name: caddy_data
+  caddy_config:
+    name: caddy_config

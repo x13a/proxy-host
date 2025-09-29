@@ -1,0 +1,7 @@
+include:
+  - ./caddy/compose.yml
+  - ./x-ui/compose.yml
+
+networks:
+  caddy:
+    name: caddy

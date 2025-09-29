@@ -1,0 +1,3 @@
+{$SIGNAL_PROXY_SUBDOMAIN}.{$DOMAIN} {
+    abort
+}

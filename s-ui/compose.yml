@@ -1,0 +1,16 @@
+services:
+  s-ui:
+    image: alireza7/s-ui:latest
+    container_name: s-ui
+    volumes:
+      - ./db:/app/db
+      - ./cert:/app/cert
+    tty: true
+    restart: unless-stopped
+    networks:
+      - caddy
+    depends_on:
+      - caddy
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    entrypoint: "./entrypoint.sh"

@@ -1,0 +1,56 @@
+{
+    # debug
+    admin off
+    servers {
+        # import "./signal_globals.caddy"
+    }
+}
+
+# import "./signal_sites.caddy"
+
+(authorization) {
+    @unauthorized not header X-Auth-Token {$CDN_AUTH_TOKEN}
+    handle @unauthorized {
+        abort
+    }
+}
+
+(proxy_handler) {
+    encode
+    root * /www
+    route {
+        reverse_proxy {$PANEL_PATH}* {$PANEL}:{$PANEL_PORT}
+        reverse_proxy {$SUB_PATH}/* {$PANEL}:{$SUB_PORT}
+        reverse_proxy {$PROXY_XHTTP_PATH}* {$PANEL}:{$PROXY_XHTTP_PORT}
+        reverse_proxy {$PROXY_XHTTP_WARP_PATH}* {$PANEL}:{$PROXY_XHTTP_WARP_PORT}
+        reverse_proxy {$PROXY_WS_PATH}* {$PANEL}:{$PROXY_WS_PORT}
+        reverse_proxy {$PROXY_WS_WARP_PATH}* {$PANEL}:{$PROXY_WS_WARP_PORT}
+        file_server
+    }
+}
+
+www.{$DOMAIN} {
+    import authorization
+    redir https://{$DOMAIN}{uri}
+}
+
+{$DOMAIN} {
+    import authorization
+    import proxy_handler
+}
+
+{$ORIGIN_SUBDOMAIN}.{$DOMAIN} {
+    import authorization
+    import proxy_handler
+}
+
+{$CLOUDFLARE_SUBDOMAIN}.{$DOMAIN} {
+    import authorization
+    import proxy_handler
+}
+
+{$IP_SUBDOMAIN}.{$DOMAIN} {
+    encode
+    templates
+    respond "{{.RemoteIP}}"
+}

@@ -1,0 +1,18 @@
+services:
+  x-ui:
+    image: alireza7/x-ui:latest
+    container_name: x-ui
+    volumes:
+      - ./db/:/etc/x-ui/
+      - ./cert/:/root/cert/
+    environment:
+      XRAY_VMESS_AEAD_FORCED: "false"
+      XUI_ENABLE_FAIL2BAN: "true"
+    tty: true
+    restart: unless-stopped
+    networks:
+      - caddy
+    depends_on:
+      - caddy
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
