@@ -11,7 +11,7 @@ install_docker() {
 }
 
 install_sysctl_config() {
-    sudo cp ./etc/sysctl.d/vpn.conf /etc/sysctl.d/
+    sudo cp ./etc/sysctl.d/proxy.conf /etc/sysctl.d/
 }
 
 install_docker

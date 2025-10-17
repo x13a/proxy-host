@@ -1,6 +1,6 @@
-# vpn-host
+# proxy-host
 
-VPN behind CDN template
+Proxy behind CDN template
 
 ## Usage
 
