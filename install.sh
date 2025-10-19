@@ -14,6 +14,10 @@ install_sysctl_config() {
     sudo cp ./etc/sysctl.d/proxy.conf /etc/sysctl.d/
 }
 
-install_docker
-install_sysctl_config
-echo "done, reboot"
+main() {
+    install_docker
+    install_sysctl_config
+    echo "done, reboot"
+}
+
+main
