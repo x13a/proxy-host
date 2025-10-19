@@ -1,0 +1,10 @@
+version: 2
+updates:
+  - package-ecosystem: "docker"
+    directory: "/caddy"
+    schedule:
+      interval: "daily"
+    ignore:
+      - dependency-name: "caddy:latest"
+    commit-message:
+      prefix: "deps"
