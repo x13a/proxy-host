@@ -1,7 +1,7 @@
 services:
   caddy:
     build: .
-    image: caddy:latest
+    image: ghcr.io/x13a/caddy-proxy-host:latest
     restart: unless-stopped
     ports:
       - 80:80
