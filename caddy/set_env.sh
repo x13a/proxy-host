@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ENV_FILE="caddy.env"
+ENV_FILE="./caddy.env"
 
 gen_secret() {
     openssl rand -hex 8

@@ -1,0 +1,6 @@
+include:
+  - ./caddy/compose.yml
+
+networks:
+  proxy:
+    name: proxy

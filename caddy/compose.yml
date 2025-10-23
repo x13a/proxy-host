@@ -14,7 +14,7 @@ services:
       - caddy_config:/config
     container_name: caddy
     networks:
-      - caddy
+      - proxy
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     env_file:

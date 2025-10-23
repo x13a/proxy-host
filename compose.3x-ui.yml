@@ -1,7 +1,0 @@
-include:
-  - ./caddy/compose.yml
-  - ./3x-ui/compose.yml
-
-networks:
-  caddy:
-    name: caddy

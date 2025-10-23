@@ -8,7 +8,7 @@ services:
     tty: true
     restart: unless-stopped
     networks:
-      - caddy
+      - proxy
     depends_on:
       - caddy
     labels:
