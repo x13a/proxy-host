@@ -54,3 +54,7 @@ www.{$DOMAIN} {
     templates
     respond "{{.RemoteIP}}"
 }
+
+http://localhost {
+    respond "OK"
+}
