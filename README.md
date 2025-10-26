@@ -8,4 +8,4 @@ TODO
 
 ## License
 
-0BSD
+MIT
