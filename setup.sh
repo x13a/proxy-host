@@ -42,6 +42,7 @@ switch_to_user() {
     mkdir -p "$dest_dir"
     cp -a "$src_dir/." "$dest_dir/"
     chown -R "$username:$username" "$dest_dir"
+    rm -rf "$src_dir"
     echo "switching to user '$username'..."
     exec su - "$username" -c "cd '$dest_dir' && bash --login './$script_name'"
 }
