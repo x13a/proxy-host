@@ -2,11 +2,19 @@
     # debug
     admin off
     servers {
-        # import "./signal_globals.caddy"
+        listener_wrappers {
+            layer4 {
+                # import "./signal_l4.caddy"
+                # import "./telegram_l4.caddy"
+                route
+            }
+            tls
+        }
     }
 }
 
 # import "./signal_sites.caddy"
+# import "./telegram_sites.caddy"
 
 (authorization) {
     @unauthorized not header X-Auth-Token {$CDN_AUTH_TOKEN}

@@ -1,0 +1,3 @@
+{$TELEGRAM_PROXY_SUBDOMAIN}.{$DOMAIN} {
+    respond "OK"
+}
