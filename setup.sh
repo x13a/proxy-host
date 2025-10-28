@@ -103,10 +103,6 @@ deploy_ssh_config() {
 
 configure_ufw() {
     local ssh_port="$1"
-    if ! command -v ufw >/dev/null 2>&1; then
-        echo "ufw is not installed, pass"
-        return 0
-    fi
     echo "configuring UFW rules..."
     sudo ufw limit "$ssh_port/tcp"
     sudo ufw allow http
@@ -120,10 +116,6 @@ setup_fail2ban() {
     local target_file="$target_dir/sshd.local"
     local template="$BASE_DIR/$target_file"
     local tmp_file
-    if ! command -v fail2ban-server >/dev/null 2>&1; then
-        echo "installing fail2ban..."
-        sudo apt-get install -y fail2ban
-    fi
     echo "setuping fail2ban..."
     if [ ! -d "$target_dir" ]; then
         sudo mkdir -p "$target_dir"
@@ -171,6 +163,7 @@ update_sys() {
     echo "updating system..."
     sudo apt-get update
     sudo apt-get upgrade -y
+    sudo apt-get install sqlite3 fail2ban ufw -y
     sudo apt-get autoremove -y
 }
 
