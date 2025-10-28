@@ -4,8 +4,8 @@
     # servers {
     #     listener_wrappers {
     #         layer4 {
-    #             import "./signal_l4.caddy"
-    #             import "./telegram_l4.caddy"
+    #             # import "./signal_l4.caddy"
+    #             # import "./telegram_l4.caddy"
     #             route
     #         }
     #         tls
