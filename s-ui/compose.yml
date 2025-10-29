@@ -13,4 +13,7 @@ services:
       - caddy
     labels:
       com.centurylinklabs.watchtower.enable: "true"
-    entrypoint: "./entrypoint.sh"
+    logging:
+      options:
+        max-size: 10m
+        max-file: "5"

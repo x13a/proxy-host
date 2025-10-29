@@ -16,3 +16,7 @@ services:
       - caddy
     labels:
       com.centurylinklabs.watchtower.enable: "true"
+    logging:
+      options:
+        max-size: 10m
+        max-file: "5"
