@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -eEuo pipefail
-trap 'echo "error on line $LINENO" >&2' ERR
+trap 'echo "error at $BASH_COMMAND on line $LINENO" >&2' ERR
 
 DEFAULT_SSH_PORT="10101"
 BASE_DIR="$(dirname "$(realpath "$0")")"
@@ -21,13 +21,14 @@ prompt_username() {
 
 create_user() {
     local username="$1"
-    if id "$username" &>/dev/null; then
-        echo "user '$username' already exists, pass"
-        return 0
+    if ! id "$username" &>/dev/null; then
+        adduser --gecos "" "$username"
+        usermod -aG sudo "$username"
+        echo "user '$username' created and added to sudo group" >&2
     fi
-    adduser --gecos "" "$username"
-    usermod -aG sudo "$username"
-    echo "user '$username' created and added to sudo group"
+    local sudoers_file="/etc/sudoers.d/$username"
+    echo "$username ALL=(ALL) NOPASSWD:ALL" > "$sudoers_file"
+    chmod 440 "$sudoers_file"
 }
 
 switch_to_user() {
@@ -43,20 +44,20 @@ switch_to_user() {
     cp -a "$src_dir/." "$dest_dir/"
     chown -R "$username:$username" "$dest_dir"
     rm -rf "$src_dir"
-    echo "switching to user '$username'..."
-    exec su - "$username" -c "cd '$dest_dir' && bash --login './$script_name'"
+    echo "switching to user '$username'..." >&2
+    exec su - "$username" -c "export SWITCHED=1; bash '$dest_dir/$script_name'"
 }
 
 configure_ssh() {
     local username="$1"
     local port
-    add_ssh_pub_key
+    add_ssh_pub_key >&2
     port=$(sudo sshd -G 2>/dev/null | awk '/^port / {print $2}')
     if [ "$port" = "22" ]; then
         port="$DEFAULT_SSH_PORT"
-        echo "ssh port set to $port"
+        echo "SSH port set to $port" >&2
     fi
-    deploy_ssh_config "$username" "$port"
+    deploy_ssh_config "$username" "$port" >&2
     echo "$port"
 }
 
@@ -72,12 +73,13 @@ add_ssh_pub_key() {
         mkdir -p "$ssh_dir"
         chmod 700 "$ssh_dir"
     fi
+    touch "$authorized_keys"
     if grep -qxF "$pub_key" "$authorized_keys" 2>/dev/null; then
         return 0
     fi
     echo "$pub_key" >> "$authorized_keys"
     chmod 600 "$authorized_keys"
-    echo "SSH public key added successfully"
+    echo "SSH public key added successfully" >&2
 }
 
 deploy_ssh_config() {
@@ -86,7 +88,7 @@ deploy_ssh_config() {
     local target="/etc/ssh/sshd_config.d/srv.conf"
     local template="$BASE_DIR/$target"
     local tmp_file
-    echo "deploying SSH config for user '$username' on port '$ssh_port'..."
+    echo "deploying SSH config for user '$username' on port '$ssh_port'..." >&2
     tmp_file=$(mktemp)
     sed \
         -e "s/$DEFAULT_SSH_PORT/$ssh_port/" \
@@ -96,14 +98,12 @@ deploy_ssh_config() {
     sudo chown root:root "$target"
     sudo chmod 600 "$target"
     rm -f "$tmp_file"
-    echo "SSH config deployed to $target"
-    echo "restarting SSH service..."
-    sudo systemctl restart sshd
+    echo "SSH config deployed to $target" >&2
 }
 
 configure_ufw() {
     local ssh_port="$1"
-    echo "configuring UFW rules..."
+    echo "configuring UFW rules..." >&2
     sudo ufw limit "$ssh_port/tcp"
     sudo ufw allow http
     sudo ufw allow https
@@ -116,7 +116,7 @@ setup_fail2ban() {
     local target_file="$target_dir/sshd.local"
     local template="$BASE_DIR/$target_file"
     local tmp_file
-    echo "setuping fail2ban..."
+    echo "setuping fail2ban..." >&2
     if [ ! -d "$target_dir" ]; then
         sudo mkdir -p "$target_dir"
         sudo chown root:root "$target_dir"
@@ -130,9 +130,8 @@ setup_fail2ban() {
     sudo chown root:root "$target_file"
     sudo chmod 644 "$target_file"
     rm -f "$tmp_file"
-    echo "fail2ban config deployed to $target_file"
+    echo "fail2ban config deployed to $target_file" >&2
     sudo systemctl enable fail2ban
-    sudo systemctl restart fail2ban
 }
 
 install_docker() {
@@ -140,53 +139,58 @@ install_docker() {
     if command -v docker >/dev/null 2>&1; then
         return 0
     fi
-    echo "installing docker..."
+    echo "installing docker..." >&2
     curl -fsSL https://get.docker.com -o get-docker.sh
     sudo sh get-docker.sh
     rm ./get-docker.sh
     sudo groupadd -f docker
     sudo usermod -aG docker "$username"
-    newgrp docker
 }
 
 configure_sysctl() {
     local target_file="/etc/sysctl.d/proxy.conf"
-    echo "configuring sysctl..."
+    echo "configuring sysctl..." >&2
     sudo cp "$BASE_DIR/$target_file" "$target_file"
     sudo chown root:root "$target_file"
     sudo chmod 644 "$target_file"
-    echo "sysctl config deployed to $target_file"
-    sudo sysctl --system
+    echo "sysctl config deployed to $target_file" >&2
 }
 
 update_sys() {
-    echo "updating system..."
+    echo "updating system..." >&2
     sudo apt-get update
     sudo apt-get upgrade -y
     sudo apt-get install sqlite3 fail2ban ufw -y
     sudo apt-get autoremove -y
 }
 
+rm_sudoers() {
+    local username="$1"
+    sudo rm -f "/etc/sudoers.d/$username"
+}
+
 main() {
     if is_root && [ -z "${SWITCHED:-}" ]; then
-        export SWITCHED=1
-        echo "running as root"
+        echo "running as root" >&2
         local new_user
         new_user="$(prompt_username)"
         create_user "$new_user"
         switch_to_user "$new_user" 
-        exit 0      
     fi
     local username ssh_port
     username="$(whoami)"
-    echo "running as $username"
+    if [ "${SWITCHED:-}" = "1" ]; then
+        export TRAP_USER="$username"
+        trap 'rm_sudoers "$TRAP_USER"' EXIT
+    fi
+    echo "running as $username" >&2
     update_sys
     ssh_port="$(configure_ssh "$username")"
     configure_ufw "$ssh_port"
     setup_fail2ban "$ssh_port"
     install_docker "$username"
     configure_sysctl
-    echo "done, reboot"
+    echo "done, reboot" >&2
 }
 
 main "$@"
