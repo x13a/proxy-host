@@ -5,8 +5,12 @@ on:
     branches:
       - main
     paths:
-      - './caddy/Dockerfile'
+      - ./caddy/Dockerfile
   workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/caddy-proxy-host
 
 jobs:
   build:
@@ -15,25 +19,54 @@ jobs:
     permissions:
       contents: read
       packages: write
+      attestations: write
       id-token: write
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
       - name: Build and push Docker image
+        id: push
         uses: docker/build-push-action@v6
         with:
           context: ./caddy
           file: ./caddy/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/caddy-proxy-host:latest
-            ghcr.io/${{ github.repository_owner }}/caddy-proxy-host:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,push=true
+
+      - name: Extract Caddy version
+        id: extract
+        run: |
+          VERSION=$(docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest caddy version | awk '{print $1}' | sed 's/^v//')
+          echo "CADDY_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Detected Caddy version: $VERSION"
+
+      - name: Tag with Caddy version
+        run: |
+          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${CADDY_VERSION}
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${CADDY_VERSION}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
