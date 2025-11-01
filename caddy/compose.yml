@@ -1,7 +1,6 @@
 services:
   caddy:
-    build: .
-    image: ghcr.io/x13a/caddy-proxy-host:latest
+    image: ghcr.io/x13a/caddy-l4:latest
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
