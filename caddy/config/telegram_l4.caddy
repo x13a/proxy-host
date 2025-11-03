@@ -1,4 +1,4 @@
 @telegram tls sni {$TELEGRAM_PROXY_SUBDOMAIN}.{$DOMAIN}
 route @telegram {
-    proxy tg-proxy:8443
+    proxy tg-proxy:8000
 }
