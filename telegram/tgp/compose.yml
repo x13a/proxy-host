@@ -1,0 +1,20 @@
+services:
+  tg-proxy:
+    build: https://github.com/geovex/tgp.git
+    image: tg-proxy
+    container_name: tg-proxy
+    restart: unless-stopped
+    volumes:
+      - ./config.toml:/app/config.toml:ro
+    networks:
+      - proxy
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    logging:
+      options:
+        max-size: 10m
+        max-file: "5"
+
+networks:
+  proxy:
+    external: true
