@@ -23,9 +23,7 @@ install_docker() {
 configure_sysctl() {
     local target_file="/etc/sysctl.d/proxy.conf"
     echo "configuring sysctl..." >&2
-    sudo cp "$BASE_DIR/$target_file" "$target_file"
-    sudo chown root:root "$target_file"
-    sudo chmod 644 "$target_file"
+    sudo install -m 644 -o root -g root "$BASE_DIR/$target_file" "$target_file"
     echo "sysctl config deployed to $target_file" >&2
 }
 
