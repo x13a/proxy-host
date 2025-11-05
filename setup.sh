@@ -91,11 +91,14 @@ init_panel_db() {
     docker compose -f "$compose_file" up -d
     echo "[*] waiting for n seconds for database initialization..."
     for i in {1..10}; do
-        [[ -f "$BASE_DIR/${VARS[panel]}/db/*.db" ]] && break
+        if compgen -G "$BASE_DIR/${VARS[panel]}/db/*.db" > /dev/null; then
+            echo "[*] database initialized"
+            break
+        fi
         sleep 1
     done
     docker compose -f "$compose_file" down
-    echo "[*] docker compose stopped, database should be initialized"
+    echo "[*] docker compose stopped"
 }
 
 set_panel_path() {
