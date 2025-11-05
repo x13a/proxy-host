@@ -10,15 +10,16 @@ declare -A DEFAULTS
 VARS[domain]=""
 VARS[panel]=""
 VARS[panel_path]=""
+VARS[cdn_token]=""
 VARS[caddy_env]="$BASE_DIR/caddy/caddy.env"
-VARS[s_ui_port]="2095"
+VARS[sui_port]="2095"
 DEFAULTS[panel]="3x-ui"
 
 is_root() {
     [ "$(id -u)" -eq 0 ]
 }
 
-is_s_ui() {
+is_sui() {
     [ "${VARS[panel]}" = "s-ui" ]
 }
 
@@ -104,7 +105,7 @@ init_panel_db() {
 set_panel_path() {
     local db_path="$BASE_DIR/${VARS[panel]}/db"
     local db_file path_var
-    if is_s_ui; then
+    if is_sui; then
         db_file="$db_path/s-ui.db"
         path_var="webPath"
     else
@@ -114,7 +115,7 @@ set_panel_path() {
     local env_file="${VARS[caddy_env]}"
     [[ -f "$db_file" ]] || { echo "err: $db_file not found, exit" >&2; exit 1; }
     local panel_path
-    panel_path=$(grep -E '^PANEL_PATH=' "$env_file" | cut -d'=' -f2-)
+    panel_path="$(grep -E '^PANEL_PATH=' "$env_file" | cut -d'=' -f2-)"
     [[ -z "$panel_path" ]] && { echo "err: PANEL_PATH is empty in $env_file, exit" >&2; exit 1; }
     sqlite3 "$db_file" "UPDATE settings SET value='$panel_path' WHERE key='$path_var';"
     VARS[panel_path]="$panel_path"
@@ -144,10 +145,14 @@ set_panel() {
     [[ -f "$env_file" ]] || { echo "err: $env_file not found, exit" >&2; exit 1; }
     sed -i "s/^PANEL=.*/PANEL=${VARS[panel]}/" "$env_file"
     echo "[*] updated $env_file with panel ${VARS[panel]}"
-    if is_s_ui; then
-        sed -i "s/^PANEL_PORT=.*/PANEL_PORT=${VARS[s_ui_port]}/" "$env_file"
-        echo "[*] updated $env_file with panel port ${VARS[s_ui_port]}"
+    if is_sui; then
+        sed -i "s/^PANEL_PORT=.*/PANEL_PORT=${VARS[sui_port]}/" "$env_file"
+        echo "[*] updated $env_file with panel port ${VARS[sui_port]}"
     fi
+}
+
+read_cdn_auth_token() {
+    VARS[cdn_token]="$(grep -E '^CDN_AUTH_TOKEN=' "${VARS[caddy_env]}" | cut -d'=' -f2-)"
 }
 
 handle_domain() {
@@ -171,7 +176,9 @@ main() {
     init_panel_db
     install_sqlite
     set_panel_path
+    read_cdn_auth_token
     echo "[*] panel is available at: https://${VARS[domain]}/${VARS[panel_path]}"
+    echo "[*] CDN auth token is: ${VARS[cdn_token]}"
     echo "[+] done, reboot"
 }
 
