@@ -89,8 +89,11 @@ init_panel_db() {
     local compose_file="$BASE_DIR/compose.yml"
     echo "[*] starting docker compose to initialize database..."
     docker compose -f "$compose_file" up -d
-    echo "[*] waiting for 5 seconds for database initialization..."
-    sleep 5
+    echo "[*] waiting for n seconds for database initialization..."
+    for i in {1..10}; do
+        [[ -f "$BASE_DIR/${VARS[panel]}/db/*.db" ]] && break
+        sleep 1
+    done
     docker compose -f "$compose_file" down
     echo "[*] docker compose stopped, database should be initialized"
 }
@@ -165,7 +168,7 @@ main() {
     init_panel_db
     install_sqlite
     set_panel_path
-    echo "panel is available at: ${VARS[domain]}/${VARS[panel_path]}"
+    echo "[*] panel is available at: https://${VARS[domain]}/${VARS[panel_path]}"
     echo "[+] done, reboot"
 }
 
