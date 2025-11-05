@@ -20,7 +20,7 @@ main() {
         secret="/$(gen_secret)"
         set_env "$var" "$secret"
     done
-    secret=$(gen_secret)$(gen_secret)
+    secret="$(gen_secret)$(gen_secret)"
     set_env "CDN_AUTH_TOKEN" "$secret"
     echo "done"
 }
