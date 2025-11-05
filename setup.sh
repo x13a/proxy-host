@@ -62,7 +62,7 @@ set_caddy_env() {
 cp_compose_file() {
     src_file="$BASE_DIR/compose/3x-ui.yml"
     dst_file="$BASE_DIR/compose.yml"
-    [[ -f "$src_file" ]] || { echo "err: $src_file not found" >&2; exit 1; }
+    [[ -f "$src_file" ]] || { echo "err: $src_file not found, exit" >&2; exit 1; }
     cp "$src_file" "$dst_file"
     echo "[*] copied $src_file to $dst_file"
 }
@@ -94,7 +94,7 @@ set_panel_path() {
     [[ -f "$db_file" ]] || { echo "err: $db_file not found, exit" >&2; exit 1; }
     local panel_path
     panel_path=$(grep -E '^PANEL_PATH=' "$env_file" | cut -d'=' -f2-)
-    [[ -z "$panel_path" ]] && { echo "err: PANEL_PATH is empty in $env_file" >&2; exit 1; }
+    [[ -z "$panel_path" ]] && { echo "err: PANEL_PATH is empty in $env_file, exit" >&2; exit 1; }
     sqlite3 "$db_file" "UPDATE settings SET value='$panel_path' WHERE key='webBasePath';"
     VARS[panel_path]="$panel_path"
     echo "[*] updated webBasePath in $db_file to '$panel_path'"
