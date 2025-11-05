@@ -8,13 +8,18 @@ declare -A VARS
 declare -A DEFAULTS
 
 VARS[domain]=""
+VARS[panel]=""
 VARS[panel_path]=""
 VARS[caddy_env]="$BASE_DIR/caddy/caddy.env"
+VARS[s_ui_port]="2095"
 DEFAULTS[panel]="3x-ui"
-DEFAULTS[s_ui_port]="2095"
 
 is_root() {
     [ "$(id -u)" -eq 0 ]
+}
+
+is_s_ui() {
+    [ "${VARS[panel]}" = "s-ui" ]
 }
 
 install_docker() {
@@ -93,7 +98,7 @@ init_panel_db() {
 set_panel_path() {
     local db_path="$BASE_DIR/${VARS[panel]}/db"
     local db_file path_var
-    if [ "${VARS[panel]}" = "s-ui" ]; then
+    if is_s_ui; then
         db_file="$db_path/s-ui.db"
         path_var="webPath"
     else
@@ -133,9 +138,9 @@ set_panel() {
     [[ -f "$env_file" ]] || { echo "err: $env_file not found, exit" >&2; exit 1; }
     sed -i "s/^PANEL=.*/PANEL=${VARS[panel]}/" "$env_file"
     echo "[*] updated $env_file with panel ${VARS[panel]}"
-    if [ "${VARS[panel]}" = "s-ui" ]; then
-        sed -i "s/^PANEL_PORT=.*/PANEL_PORT=${DEFAULTS[s_ui_port]}/" "$env_file"
-        echo "[*] updated $env_file with panel port ${DEFAULTS[s_ui_port]}"
+    if is_s_ui; then
+        sed -i "s/^PANEL_PORT=.*/PANEL_PORT=${VARS[s_ui_port]}/" "$env_file"
+        echo "[*] updated $env_file with panel port ${VARS[s_ui_port]}"
     fi
 }
 
