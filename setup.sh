@@ -11,6 +11,7 @@ VARS[domain]=""
 VARS[panel_path]=""
 VARS[caddy_env]="$BASE_DIR/caddy/caddy.env"
 DEFAULTS[panel]="3x-ui"
+DEFAULTS[s_ui_port]="2095"
 
 is_root() {
     [ "$(id -u)" -eq 0 ]
@@ -90,15 +91,23 @@ init_panel_db() {
 }
 
 set_panel_path() {
-    local db_file="$BASE_DIR/${VARS[panel]}/db/x-ui.db"
-    local env_file="$BASE_DIR/caddy/caddy.env"
+    local db_path="$BASE_DIR/${VARS[panel]}/db"
+    local db_file path_var
+    if [ "${VARS[panel]}" = "s-ui" ]; then
+        db_file="$db_path/s-ui.db"
+        path_var="webPath"
+    else
+        db_file="$db_path/x-ui.db"
+        path_var="webBasePath"
+    fi
+    local env_file="${VARS[caddy_env]}"
     [[ -f "$db_file" ]] || { echo "err: $db_file not found, exit" >&2; exit 1; }
     local panel_path
     panel_path=$(grep -E '^PANEL_PATH=' "$env_file" | cut -d'=' -f2-)
     [[ -z "$panel_path" ]] && { echo "err: PANEL_PATH is empty in $env_file, exit" >&2; exit 1; }
-    sqlite3 "$db_file" "UPDATE settings SET value='$panel_path' WHERE key='webBasePath';"
+    sqlite3 "$db_file" "UPDATE settings SET value='$panel_path' WHERE key='$path_var';"
     VARS[panel_path]="$panel_path"
-    echo "[*] updated webBasePath in $db_file to '$panel_path'"
+    echo "[*] updated $path_var in $db_file to '$panel_path'"
 }
 
 ask_panel() {
@@ -124,6 +133,10 @@ set_panel() {
     [[ -f "$env_file" ]] || { echo "err: $env_file not found, exit" >&2; exit 1; }
     sed -i "s/^PANEL=.*/PANEL=${VARS[panel]}/" "$env_file"
     echo "[*] updated $env_file with panel ${VARS[panel]}"
+    if [ "${VARS[panel]}" = "s-ui" ]; then
+        sed -i "s/^PANEL_PORT=.*/PANEL_PORT=${DEFAULTS[s_ui_port]}/" "$env_file"
+        echo "[*] updated $env_file with panel port ${DEFAULTS[s_ui_port]}"
+    fi
 }
 
 handle_domain() {
