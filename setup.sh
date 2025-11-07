@@ -178,6 +178,7 @@ main() {
     set_panel_path
     read_cdn_auth_token
     echo "[*] panel is available at: https://${VARS[domain]}/${VARS[panel_path]}"
+    echo "[*] panel params file: ${VARS[caddy_env]}"
     echo "[*] CDN auth token is: ${VARS[cdn_token]}"
     echo "[+] done, reboot"
 }
