@@ -8,37 +8,37 @@ XHTTP_PREFIXES=(assets static public cdn content resources site media uploads di
 WS_PREFIXES=(ws socket wss live realtime api/socket socket.io chat stream)
 
 hmac_hex() {
-  local key="$1"
-  local msg="$2"
-  local len=${3:-12}
-  openssl dgst -sha256 -hmac "$key" <<<"$msg" | awk '{print $2}' | cut -c1-"$len"
+    local key="$1"
+    local msg="$2"
+    local len=${3:-12}
+    openssl dgst -sha256 -hmac "$key" <<<"$msg" | awk '{print $2}' | cut -c1-"$len"
 }
 
 gen_xhttp_path() {
-  local context="$1"
-  local prefix="${XHTTP_PREFIXES[$RANDOM % ${#XHTTP_PREFIXES[@]}]}"
-  local ver="v$((RANDOM % 9 + 1))"
-  local token path
-  token="$(hmac_hex "$HMAC_SECRET_KEY" "$context")"
-  if (( RANDOM % 2 )); then
-      path="/$prefix/$ver/$token/"
+    local context="$1"
+    local prefix="${XHTTP_PREFIXES[$RANDOM % ${#XHTTP_PREFIXES[@]}]}"
+    local ver="v$((RANDOM % 9 + 1))"
+    local token path
+    token="$(hmac_hex "$HMAC_SECRET_KEY" "$context")"
+    if (( RANDOM % 2 )); then
+        path="/$prefix/$ver/$token/"
     else
-      local ext=(js css png jpg gz svg)
-      path="/$prefix/$ver/$token.${ext[$RANDOM % ${#ext[@]}]}"
-  fi
-  echo "$path"
+        local ext=(js css png jpg gz svg)
+        path="/$prefix/$ver/$token.${ext[$RANDOM % ${#ext[@]}]}"
+    fi
+    echo "$path"
 }
 
 gen_ws_path() {
-  local context="$1"
-  local prefix="${WS_PREFIXES[$RANDOM % ${#WS_PREFIXES[@]}]}"
-  local token
-  token="$(hmac_hex "$HMAC_SECRET_KEY" "$context" 8)"
-  if (( RANDOM % 2 )); then
-    echo "/$prefix/$token"
-  else
-    echo "/$prefix/$token/handshake"
-  fi
+    local context="$1"
+    local prefix="${WS_PREFIXES[$RANDOM % ${#WS_PREFIXES[@]}]}"
+    local token
+    token="$(hmac_hex "$HMAC_SECRET_KEY" "$context" 8)"
+    if (( RANDOM % 2 )); then
+        echo "/$prefix/$token"
+    else
+        echo "/$prefix/$token/handshake"
+    fi
 }
 
 set_env() {
