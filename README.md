@@ -35,7 +35,7 @@ CLOUDFLARE_SUBDOMAIN=cloudflare
 # ip lookup, direct connection
 IP_SUBDOMAIN=ip
 # disabled by default, direct connection
-SIGNAL_PROXY_SUBDOMAIN=signal
+SIGNAL_PROXY_SUBDOMAIN=sig
 # disabled by default, direct connection
 TELEGRAM_PROXY_SUBDOMAIN=tg
 
