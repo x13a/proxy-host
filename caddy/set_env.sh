@@ -21,7 +21,7 @@ gen_xhttp_path() {
     local token path
     token="$(hmac_hex "$HMAC_SECRET_KEY" "$context")"
     if (( RANDOM % 2 )); then
-        path="/$prefix/$ver/$token/"
+        path="/$prefix/$ver/$token"
     else
         local ext=(js css png jpg gz svg)
         path="/$prefix/$ver/$token.${ext[$RANDOM % ${#ext[@]}]}"
@@ -51,8 +51,8 @@ main() {
         HMAC_SECRET_KEY="$(openssl rand -hex 16)"
         echo "[*] empty hmac secret, using: $HMAC_SECRET_KEY"
     fi
-    set_env "PANEL_PATH" "$(hmac_hex "$HMAC_SECRET_KEY" "panel")"
-    set_env "SUBSCRIPTION_PATH" "$(hmac_hex "$HMAC_SECRET_KEY" "subscription")"
+    set_env "PANEL_PATH" "/pan/$(hmac_hex "$HMAC_SECRET_KEY" "panel")"
+    set_env "SUBSCRIPTION_PATH" "/sub/$(hmac_hex "$HMAC_SECRET_KEY" "subscription")"
     set_env "PROXY_XHTTP_PATH" "$(gen_xhttp_path "xhttp")"
     set_env "PROXY_XHTTP_WARP_PATH" "$(gen_xhttp_path "xhttp-warp")"
     set_env "PROXY_WS_PATH" "$(gen_ws_path "ws")"
