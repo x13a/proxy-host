@@ -15,7 +15,7 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:80 || exit 1"]
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9000 || exit 1"]
       timeout: 5s
       start_period: 10s
     container_name: caddy
