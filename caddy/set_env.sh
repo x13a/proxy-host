@@ -51,6 +51,8 @@ main() {
         HMAC_SECRET_KEY="$(openssl rand -hex 16)"
         echo "[*] empty hmac secret, using: $HMAC_SECRET_KEY"
     fi
+    set_env "PANEL_PATH" "$(hmac_hex "$HMAC_SECRET_KEY" "panel")"
+    set_env "SUBSCRIPTION_PATH" "$(hmac_hex "$HMAC_SECRET_KEY" "subscription")"
     set_env "PROXY_XHTTP_PATH" "$(gen_xhttp_path "xhttp")"
     set_env "PROXY_XHTTP_WARP_PATH" "$(gen_xhttp_path "xhttp-warp")"
     set_env "PROXY_WS_PATH" "$(gen_ws_path "ws")"
