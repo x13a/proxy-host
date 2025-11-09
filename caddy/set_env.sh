@@ -55,8 +55,8 @@ main() {
     set_env "SUBSCRIPTION_PATH" "/sub/$(hmac_hex "$HMAC_SECRET_KEY" "subscription")"
     set_env "PROXY_XHTTP_PATH" "$(gen_xhttp_path "xhttp")"
     set_env "PROXY_XHTTP_WARP_PATH" "$(gen_xhttp_path "xhttp-warp")"
-    set_env "PROXY_WS_PATH" "$(gen_ws_path "ws")"
-    set_env "PROXY_WS_WARP_PATH" "$(gen_ws_path "ws-warp")"
+    set_env "PROXY_WEBSOCKET_PATH" "$(gen_ws_path "ws")"
+    set_env "PROXY_WEBSOCKET_WARP_PATH" "$(gen_ws_path "ws-warp")"
     set_env "CDN_AUTH_TOKEN" "$(hmac_hex "$HMAC_SECRET_KEY" "cdn-auth-token" 32)"
     echo "[+] done"
 }
