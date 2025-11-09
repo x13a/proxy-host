@@ -79,6 +79,6 @@ www.{$DOMAIN} {
     respond "{{.RemoteIP}}"
 }
 
-http://localhost:9000 {
+:9000 {
     respond "OK"
 }
