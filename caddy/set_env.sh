@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ENV_FILE="./caddy.env"
+ENV_FILE="${ENV_FILE:-./caddy.env}"
 HMAC_SECRET_KEY=""
 
 XHTTP_PREFIXES=(assets static public cdn content resources site media uploads dist build)
