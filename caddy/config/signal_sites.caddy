@@ -1,3 +1,8 @@
 {$SIGNAL_PROXY_SUBDOMAIN}.{$DOMAIN} {
     abort
 }
+
+# active probing handler
+:9000 {
+    respond "OK"
+}

@@ -79,6 +79,7 @@ www.{$DOMAIN} {
     respond "{{.RemoteIP}}"
 }
 
-:9000 {
+# healthcheck
+http://localhost:8000 {
     respond "OK"
 }
