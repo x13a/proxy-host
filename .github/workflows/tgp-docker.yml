@@ -1,0 +1,83 @@
+name: Build and Push Docker image from geovex/tgp
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/tgp
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Get latest tag from upstream
+        id: tag
+        run: |
+          tag=$(curl -s https://api.github.com/repos/geovex/tgp/tags | jq -r '.[0].name')
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "Latest tag: $tag"
+
+      - name: Check if image already exists
+        id: check
+        run: |
+          echo "Checking if ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }} exists..."
+          if curl -s -f -u "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}" \
+              "https://ghcr.io/v2/${{ env.IMAGE_NAME }}/manifests/${{ steps.tag.outputs.tag }}" >/dev/null; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Stop if image already exists
+        if: steps.check.outputs.exists == 'true'
+        run: |
+          echo "Docker image for tag ${{ steps.tag.outputs.tag }} already exists. Exiting."
+          exit 0
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          repository: geovex/tgp
+          ref: ${{ steps.tag.outputs.tag }}
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
