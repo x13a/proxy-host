@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-curl \
-    -X PATCH "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/settings/ech" \
-    -H "X-Auth-Key: ${CF_GLOBAL_API_KEY}" \
-    -H "X-Auth-Email: ${CF_EMAIL}" \
-    -H "Content-Type: application/json" \
-    --data '{"id":"ech","value":"off"}'
+ENV_FILE="${ENV_FILE:-./cf.env}"
+
+set_ech() {
+    local value="${1:-off}"
+    [ -f "$ENV_FILE" ] && source "$ENV_FILE"
+    curl -sS \
+        -X PATCH "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/settings/ech" \
+        -H "Authorization: Bearer $CF_API_TOKEN" \
+        -H "Content-Type: application/json" \
+        --data "{\"id\":\"ech\",\"value\":\"$value\"}"
+}
+
+set_ech "$@"
