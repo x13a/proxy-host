@@ -37,7 +37,7 @@ gen_config_secret() {
     local host="$2"
     local host_hex
     [[ -z "$host" ]] && { echo "error: host is required, exit" >&2; exit 1; }
-    host_hex=$(echo -n "$host" | xxd -p -c 256)
+    host_hex="$(echo -n "$host" | xxd -p -c 256)"
     echo "ee${key}${host_hex}"
 }
 
