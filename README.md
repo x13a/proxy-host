@@ -1,6 +1,6 @@
 # proxy-host
 
-Proxy behind CDN template
+Proxy behind CDN bootstrap
 
 You must have a server and domain name for this.
 
