@@ -1,0 +1,8 @@
+encode
+root * /www
+route {
+    file_server {
+        pass_thru
+    }
+    abort
+}
