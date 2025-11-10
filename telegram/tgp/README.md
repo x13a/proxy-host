@@ -14,7 +14,7 @@ You will get something like this:
 [*] proxy url:     tg://proxy?server=tg.example.org&port=443&secret=7r-DMb_qP8vBF6FKt32WHtt0Zy5leGFtcGxlLm9yZw
 ```
 
-Then set variables in *config.toml* file:
+Set variables in *config.toml* file:
 
 ```toml
 secret = "SOME_SECRET"
