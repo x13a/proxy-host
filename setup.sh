@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -eEuo pipefail
-trap 'echo "err: $BASH_COMMAND on line $LINENO" >&2' ERR
+trap 'echo "error: $BASH_COMMAND on line $LINENO" >&2' ERR
 
 BASE_DIR="$(dirname "$(realpath "$0")")"
 
@@ -39,7 +39,7 @@ install_docker() {
 
 configure_sysctl() {
     local target="/etc/sysctl.d/proxy.conf"
-    [[ -f "$BASE_DIR/$target" ]] || { echo "err: missing $target, exit" >&2; exit 1; }
+    [[ -f "$BASE_DIR/$target" ]] || { echo "error: missing $target, exit" >&2; exit 1; }
     echo "[*] configuring sysctl..."
     sudo install -m 644 -o root -g root "$BASE_DIR/$target" "$target"
     echo "[+] sysctl config deployed to $target"
@@ -48,13 +48,13 @@ configure_sysctl() {
 ask_domain() {
     local domain
     read -rp "enter your domain: " domain
-    [[ -z "$domain" ]] && { echo "err: domain cannot be empty, exit" >&2; exit 1; }
+    [[ -z "$domain" ]] && { echo "error: domain cannot be empty, exit" >&2; exit 1; }
     VARS[domain]="$domain"
 }
 
 set_domain() {
     local env_file="${VARS[caddy_env]}"
-    [[ -f "$env_file" ]] || { echo "err: $env_file not found, exit" >&2; exit 1; }
+    [[ -f "$env_file" ]] || { echo "error: $env_file not found, exit" >&2; exit 1; }
     sed -i "s/^DOMAIN=.*/DOMAIN=${VARS[domain]}/" "$env_file"
     echo "[*] updated $env_file with domain ${VARS[domain]}"
 }
@@ -62,7 +62,7 @@ set_domain() {
 set_caddy_env() {
     local set_env_script="$BASE_DIR/caddy/set_env.sh"
     local env_file="${VARS[caddy_env]}"
-    [[ -f "$set_env_script" ]] || { echo "err: $set_env_script not found, exit" >&2; exit 1; }
+    [[ -f "$set_env_script" ]] || { echo "error: $set_env_script not found, exit" >&2; exit 1; }
     ENV_FILE="$env_file" bash "$set_env_script"
     echo "[*] executed $set_env_script with ENV_FILE=$env_file"
 }
@@ -70,7 +70,7 @@ set_caddy_env() {
 cp_compose_file() {
     local src_file="$BASE_DIR/compose/${VARS[panel]}.yml"
     local dst_file="$BASE_DIR/compose.yml"
-    [[ -f "$src_file" ]] || { echo "err: $src_file not found, exit" >&2; exit 1; }
+    [[ -f "$src_file" ]] || { echo "error: $src_file not found, exit" >&2; exit 1; }
     cp "$src_file" "$dst_file"
     echo "[*] copied $src_file to $dst_file"
 }
@@ -113,10 +113,10 @@ set_panel_path() {
         path_var="webBasePath"
     fi
     local env_file="${VARS[caddy_env]}"
-    [[ -f "$db_file" ]] || { echo "err: $db_file not found, exit" >&2; exit 1; }
+    [[ -f "$db_file" ]] || { echo "error: $db_file not found, exit" >&2; exit 1; }
     local panel_path
     panel_path="$(grep -E '^PANEL_PATH=' "$env_file" | cut -d'=' -f2-)"
-    [[ -z "$panel_path" ]] && { echo "err: PANEL_PATH is empty in $env_file, exit" >&2; exit 1; }
+    [[ -z "$panel_path" ]] && { echo "error: PANEL_PATH is empty in $env_file, exit" >&2; exit 1; }
     sqlite3 "$db_file" "UPDATE settings SET value='$panel_path' WHERE key='$path_var';"
     VARS[panel_path]="$panel_path"
     echo "[*] updated $path_var in $db_file to '$panel_path'"
@@ -134,7 +134,7 @@ ask_panel() {
                 break
                 ;;
             *)
-                echo "err: invalid choice, please choose 3x-ui, x-ui, or s-ui"
+                echo "error: invalid choice, please choose 3x-ui, x-ui, or s-ui"
                 ;;
         esac
     done
@@ -142,7 +142,7 @@ ask_panel() {
 
 set_panel() {
     local env_file="${VARS[caddy_env]}"
-    [[ -f "$env_file" ]] || { echo "err: $env_file not found, exit" >&2; exit 1; }
+    [[ -f "$env_file" ]] || { echo "error: $env_file not found, exit" >&2; exit 1; }
     sed -i "s/^PANEL=.*/PANEL=${VARS[panel]}/" "$env_file"
     echo "[*] updated $env_file with panel ${VARS[panel]}"
     if is_sui; then
@@ -166,7 +166,7 @@ handle_panel() {
 }
 
 main() {
-    is_root && { echo "err: run as root is forbidden, exit" >&2; exit 1; }
+    is_root && { echo "error: run as root is forbidden, exit" >&2; exit 1; }
     install_docker
     configure_sysctl
     handle_domain
