@@ -36,7 +36,7 @@ CLOUDFLARE_SUBDOMAIN=cloudflare
 IP_SUBDOMAIN=ip
 # disabled by default, direct connection, will be sig-aabbccdd
 SIGNAL_PROXY_SUBDOMAIN=sig
-# disabled by default, direct connection
+# disabled by default, direct connection, will be tg-aabbccdd
 TELEGRAM_PROXY_SUBDOMAIN=tg
 
 # redir to your domain
