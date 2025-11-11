@@ -35,18 +35,16 @@ gen_base64_secret() {
 gen_config_secret() {
     local key="$1"
     local host="$2"
-    local host_hex
-    [[ -z "$host" ]] && { echo "error: host is required, exit" >&2; exit 1; }
-    host_hex="$(echo -n "$host" | xxd -p -c 256)"
+    local host_hex="$(echo -n "$host" | xxd -p -c 256)"
     echo "ee${key}${host_hex}"
 }
 
 main() {
-    if [[ "${1:-}" == "" ]]; then
+    local host="$1"
+    if [[ "$host" == "" ]]; then
         usage
         exit 1
     fi
-    local host="$1"
     local port="${2:-443}"
     local key="$(openssl rand -hex 16)"
     local conf_secret="$(gen_config_secret "$key" "$host")"

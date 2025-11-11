@@ -8,6 +8,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository_owner }}/tgp
+  VERSION_FILE: ./telegram/tgp/version.txt
 
 jobs:
   build:
@@ -20,37 +21,37 @@ jobs:
       id-token: write
 
     steps:
-      - name: Get latest tag from upstream
-        id: tag
+      - name: Get latest version from upstream
+        id: tgp
         run: |
-          tag=$(curl -s https://api.github.com/repos/geovex/tgp/tags | jq -r '.[0].name')
-          echo "tag=$tag" >> $GITHUB_OUTPUT
-          echo "Latest tag: $tag"
+          version=$(curl -s https://api.github.com/repos/geovex/tgp/tags | jq -r '.[0].name' | sed 's/^v//')
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "Latest version: $version"
 
-      - name: Check if image already exists
-        id: check
+      - name: Read last known version
+        id: last
         run: |
-          echo "Checking if ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }} exists..."
-          if curl -s -f -u "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}" \
-              "https://ghcr.io/v2/${{ env.IMAGE_NAME }}/manifests/${{ steps.tag.outputs.tag }}" >/dev/null; then
-            echo "exists=true" >> $GITHUB_OUTPUT
+          if [ -f ${{ env.VERSION_FILE }} ]; then
+            version=$(cat ${{ env.VERSION_FILE }})
           else
-            echo "exists=false" >> $GITHUB_OUTPUT
+            version=""
           fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Last version: $version"
 
-      - name: Stop if image already exists
-        if: steps.check.outputs.exists == 'true'
+      - name: Stop if version is the same
+        if: steps.last.outputs.version == steps.tgp.outputs.version
         run: |
-          echo "Docker image for tag ${{ steps.tag.outputs.tag }} already exists. Exiting."
-          exit 0
+            echo "Version is the same as last build. Exiting."
+            exit 0
 
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
           repository: geovex/tgp
-          ref: ${{ steps.tag.outputs.tag }}
+          ref: "v${{ steps.tgp.outputs.version }}"
 
-      - name: Login to GHCR
+      - name: Login to registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -72,6 +73,7 @@ jobs:
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tgp.outputs.version }}
             ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
@@ -81,3 +83,12 @@ jobs:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
+
+      - name: Update version.txt
+        run: |
+          echo "${{ steps.tgp.outputs.version }}" > ${{ env.VERSION_FILE }}
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add version.txt
+          git commit -m "Update Mullvad version to ${{ steps.tgp.outputs.version }}"
+          git push
