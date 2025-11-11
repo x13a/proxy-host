@@ -1,7 +1,7 @@
 services:
   tg-proxy:
     build: https://github.com/geovex/tgp.git#v0.9.10
-    image: ghcr.io/x13a/tgp:latest
+    image: tg-proxy
     container_name: tg-proxy
     restart: unless-stopped
     user: nobody:nogroup
