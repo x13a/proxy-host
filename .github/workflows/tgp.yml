@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  COMPOSE_PATH: ./telegram/tgp/compose.yml
+  COMPOSE_FILE: ./telegram/tgp/compose.yml
 
 jobs:
   check-and-update:
@@ -26,7 +26,7 @@ jobs:
       - name: Get current tag from docker compose
         id: current_tag
         run: |
-          current=$(grep -oE 'geovex/tgp.git#v[0-9]+\.[0-9]+\.[0-9]+' ${{ env.COMPOSE_PATH }} | sed 's/.*#//')
+          current=$(grep -oE 'geovex/tgp.git#v[0-9]+\.[0-9]+\.[0-9]+' ${{ env.COMPOSE_FILE }} | sed 's/.*#//')
           echo "current_tag=$current" >> $GITHUB_OUTPUT
           echo "Current tag: $current"
 
@@ -42,7 +42,7 @@ jobs:
       - name: Update docker compose
         if: steps.compare.outputs.update_needed == 'true'
         run: |
-          sed -i "s|geovex/tgp.git#${{ steps.current_tag.outputs.current_tag }}|geovex/tgp.git#${{ steps.get_tag.outputs.latest_tag }}|" ${{ env.COMPOSE_PATH }}
+          sed -i "s|geovex/tgp.git#${{ steps.current_tag.outputs.current_tag }}|geovex/tgp.git#${{ steps.get_tag.outputs.latest_tag }}|" ${{ env.COMPOSE_FILE }}
           echo "Updated to ${{ steps.get_tag.outputs.latest_tag }}"
 
       - name: Commit and push changes
@@ -50,6 +50,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ${{ env.COMPOSE_PATH }}
+          git add ${{ env.COMPOSE_FILE }}
           git commit -m "Update geovex/tgp version to ${{ steps.get_tag.outputs.latest_tag }}"
           git push
