@@ -53,24 +53,26 @@
     }
 }
 
+(cdn_handler) {
+    import authorization
+    import proxy_handler
+}
+
 www.{$DOMAIN} {
     import authorization
     redir https://{$DOMAIN}{uri}
 }
 
 {$DOMAIN} {
-    import authorization
-    import proxy_handler
+    import cdn_handler
 }
 
 {$ORIGIN_SUBDOMAIN}.{$DOMAIN} {
-    import authorization
-    import proxy_handler
+    import cdn_handler
 }
 
 {$CLOUDFLARE_SUBDOMAIN}.{$DOMAIN} {
-    import authorization
-    import proxy_handler
+    import cdn_handler
 }
 
 {$IP_SUBDOMAIN}.{$DOMAIN} {
