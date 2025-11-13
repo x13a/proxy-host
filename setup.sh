@@ -125,7 +125,7 @@ set_panel_path() {
 ask_panel() {
     local panel
     while true; do
-        read -rp "choose panel [3x-ui/x-ui/s-ui] (default ${DEFAULTS[panel]}): " panel
+        read -rp "choose panel [3x-ui/x-ui/s-ui] (default: ${DEFAULTS[panel]}): " panel
         panel="${panel:-${DEFAULTS[panel]}}"
         case "$panel" in
             3x-ui|x-ui|s-ui)
