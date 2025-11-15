@@ -1,5 +1,6 @@
 encode
 root * /www
+import "./basic_auth.caddy"
 route {
     file_server {
         pass_thru

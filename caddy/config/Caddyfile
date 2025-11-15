@@ -49,7 +49,10 @@
         reverse_proxy {$PROXY_WEBSOCKET_WARP_PATH}/* {$PANEL}:{$PROXY_WEBSOCKET_WARP_PORT} {
             import rm-cdn-auth-header
         }
-        file_server
+        handle {
+            import "./basic_auth.caddy"
+            file_server
+        }
     }
 }
 

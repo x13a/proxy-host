@@ -1,0 +1,3 @@
+basic_auth {
+    nobody $2a$14$gjTBjKvWl5Ou3Z9U4WPNxOk6OdmS2rz1bHTmAQ7pBtlrGn.AoB8ku
+}
