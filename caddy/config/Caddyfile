@@ -43,10 +43,10 @@
         reverse_proxy {$PROXY_XHTTP_WARP_PATH}/* {$PANEL}:{$PROXY_XHTTP_WARP_PORT} {
             import rm-cdn-auth-header
         }
-        reverse_proxy {$PROXY_WEBSOCKET_PATH}/* {$PANEL}:{$PROXY_WEBSOCKET_PORT} {
+        reverse_proxy {$PROXY_WEBSOCKET_PATH} {$PANEL}:{$PROXY_WEBSOCKET_PORT} {
             import rm-cdn-auth-header
         }
-        reverse_proxy {$PROXY_WEBSOCKET_WARP_PATH}/* {$PANEL}:{$PROXY_WEBSOCKET_WARP_PORT} {
+        reverse_proxy {$PROXY_WEBSOCKET_WARP_PATH} {$PANEL}:{$PROXY_WEBSOCKET_WARP_PORT} {
             import rm-cdn-auth-header
         }
         handle {
