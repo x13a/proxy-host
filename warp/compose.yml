@@ -1,0 +1,27 @@
+services:
+  warp:
+    image: caomingjun/warp
+    container_name: warp
+    restart: unless-stopped
+    environment:
+      - WARP_SLEEP=2
+      # - WARP_LICENSE_KEY=
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+      - net.ipv4.conf.all.src_valid_mark=1
+    volumes:
+      - ./data:/var/lib/cloudflare-warp
+    networks:
+      - proxy
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    logging:
+      options:
+        max-size: 10m
+        max-file: "5"
+
+networks:
+  proxy:
+    external: true
