@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ENV_FILE="${ENV_FILE:-./cf.env}"
+ENV_FILE="${ENV_FILE:-./cloudflare.env}"
 
 set_ech() {
     local value="${1:-off}"

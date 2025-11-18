@@ -1,16 +1,16 @@
-## cf_ech.sh
+## cloudflare_ech.sh
 
 This script is used to turn ech on CloudFlare via cli. 
-You have to set `CF_API_TOKEN` and `CF_ZONE_ID` in *cf.env*.
+You have to set `CF_API_TOKEN` and `CF_ZONE_ID` in *cloudflare.env*.
 
 Don't forget to change file permissions:
 
 ```sh
-chmod 600 ./cf.env
+chmod 600 ./cloudflare.env
 ```
 
 ```sh
-Usage: ./cf_ech.sh on|off
+Usage: ./cloudflare_ech.sh on|off
 ```
 
 ## fastly.vcl
