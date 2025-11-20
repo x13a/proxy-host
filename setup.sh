@@ -165,10 +165,18 @@ handle_panel() {
     set_panel
 }
 
+configure_ufw() {
+    echo "[*] configuring UFW rules..."
+    sudo ufw allow http
+    sudo ufw allow https
+    echo "[+] UFW configured"
+}
+
 main() {
     is_root && { echo "error: run as root is forbidden, exit" >&2; exit 1; }
     install_docker
     configure_sysctl
+    configure_ufw
     handle_domain
     handle_panel
     set_caddy_env
