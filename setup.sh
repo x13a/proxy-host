@@ -38,7 +38,7 @@ install_docker() {
 }
 
 configure_sysctl() {
-    local target="/etc/sysctl.d/proxy.conf"
+    local target="/etc/sysctl.d/99-proxy.conf"
     [[ -f "$BASE_DIR/$target" ]] || { echo "error: missing $target, exit" >&2; exit 1; }
     echo "[*] configuring sysctl..."
     sudo install -m 644 -o root -g root "$BASE_DIR/$target" "$target"
