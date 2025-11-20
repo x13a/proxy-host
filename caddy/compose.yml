@@ -24,10 +24,6 @@ services:
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     env_file: ./caddy.env
-    logging:
-      options:
-        max-size: 10m
-        max-file: "5"
 
 volumes:
   caddy_data:
