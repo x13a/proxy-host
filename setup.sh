@@ -166,6 +166,9 @@ handle_panel() {
 }
 
 configure_ufw() {
+    if ! command -v ufw >/dev/null 2>&1; then
+        return 0
+    fi
     echo "[*] configuring UFW rules..."
     sudo ufw allow http
     sudo ufw allow https
