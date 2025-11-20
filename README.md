@@ -6,15 +6,10 @@ You must have a server and domain name for this.
 
 ## Usage
 
-Clone repository to local directory:
+Clone repository and switch into it:
 
 ```sh
 git clone https://github.com/x13a/proxy-host
-```
-
-Change directory to recently clonned repository:
-
-```sh
 cd proxy-host
 ```
 
