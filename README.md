@@ -22,7 +22,7 @@ Run *setup.sh* file:
 Now you have to configure DNS records.  
 Caddy is set to use following subdomains:
 
-```sh
+```env
 # CDN origin, direct connection, token protected
 ORIGIN_SUBDOMAIN=origin
 # CDN, token protected
