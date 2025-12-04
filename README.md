@@ -19,7 +19,7 @@ Run *setup.sh* file:
 ./setup.sh
 ```
 
-Now you have configure DNS records.  
+Now you have to configure DNS records.  
 Caddy is set to use following subdomains:
 
 ```sh
