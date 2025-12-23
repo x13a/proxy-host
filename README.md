@@ -26,7 +26,7 @@ Caddy is set to use following subdomains:
 # CDN origin, direct connection, token protected
 ORIGIN_SUBDOMAIN=origin
 # CDN, token protected
-CLOUDFLARE_SUBDOMAIN=cloudflare
+CLOUDFLARE_SUBDOMAIN=cloudflare.cdn
 # ip lookup, direct connection
 IP_SUBDOMAIN=ip
 # disabled by default, direct connection, will be sig-aabbccdd

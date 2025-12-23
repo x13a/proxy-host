@@ -4,8 +4,8 @@ var DNS_CLOUDFLARE = NewDnsProvider("cloudflare");
 var ip4 = IP("1.2.3.4");
 var ip6 = "0:0:0:0:0:0:0:0";
 var domain = "example.org";
-var telegram_subdomain = "tg";
-var signal_subdomain = "sig";
+var telegram_subdomain = "tg-";
+var signal_subdomain = "sig-";
 
 D(domain, REG_NONE, DnsProvider(DNS_CLOUDFLARE),
     DefaultTTL(1),
@@ -20,5 +20,5 @@ D(domain, REG_NONE, DnsProvider(DNS_CLOUDFLARE),
     AAAA(telegram_subdomain, ip6),
     AAAA("@", ip6, CF_PROXY_ON),
     CNAME("www", domain + ".", CF_PROXY_ON),
-    CNAME("cloudflare", domain + ".", CF_PROXY_ON),
+    CNAME("cloudflare.cdn", domain + ".", CF_PROXY_ON),
 );
